@@ -21,7 +21,8 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    const { prompt, model } = await req.json();
+    const engineId = model || "stable-diffusion-v1-6"; // Default to v1.6 if no model is provided
 
     if (!prompt) {
       return new Response(
@@ -31,7 +32,7 @@ serve(async (req) => {
     }
 
     const response = await fetch(
-      `${API_HOST}/v1/generation/stable-diffusion-v1-6/text-to-image`,
+      `${API_HOST}/v1/generation/${engineId}/text-to-image`,
       {
         method: "POST",
         headers: {

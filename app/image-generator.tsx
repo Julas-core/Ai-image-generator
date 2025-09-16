@@ -14,10 +14,16 @@ import {
 import { supabase } from "../integrations/supabase/client";
 import { Link } from "expo-router";
 
+const models = [
+  { id: "stable-diffusion-v1-6", name: "Stable Diffusion 1.6" },
+  { id: "stable-diffusion-xl-1024-v1-0", name: "SDXL 1.0" },
+];
+
 export default function ImageGeneratorScreen() {
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedModel, setSelectedModel] = useState(models[0].id);
 
   const generateImage = async () => {
     if (!prompt.trim()) {
@@ -30,7 +36,7 @@ export default function ImageGeneratorScreen() {
 
     try {
       const { data, error } = await supabase.functions.invoke("generate-image", {
-        body: { prompt },
+        body: { prompt, model: selectedModel },
       });
 
       if (error) {
@@ -59,8 +65,30 @@ export default function ImageGeneratorScreen() {
       </Link>
       <Text style={styles.title}>AI Image Generator</Text>
       <Text style={styles.subtitle}>
-        Enter a prompt to generate an image using Stable Diffusion.
+        Enter a prompt and select a model to generate an image.
       </Text>
+
+      <View style={styles.modelSelector}>
+        {models.map((model) => (
+          <Pressable
+            key={model.id}
+            style={[
+              styles.modelButton,
+              selectedModel === model.id && styles.modelButtonSelected,
+            ]}
+            onPress={() => setSelectedModel(model.id)}
+          >
+            <Text
+              style={[
+                styles.modelButtonText,
+                selectedModel === model.id && styles.modelButtonTextSelected,
+              ]}
+            >
+              {model.name}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -129,8 +157,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: 20,
     maxWidth: 300,
+  },
+  modelSelector: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 8,
+    padding: 4,
+  },
+  modelButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  modelButtonSelected: {
+    backgroundColor: '#007BFF',
+  },
+  modelButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  modelButtonTextSelected: {
+    color: '#fff',
   },
   inputContainer: {
     width: "100%",
