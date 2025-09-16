@@ -1,6 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared-with-expo';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '../integrations/supabase/client';
 
 export default function LoginScreen() {
