@@ -1,10 +1,14 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
 import * as Linking from "expo-linking";
 import { Link } from "expo-router";
+import { supabase } from "../integrations/supabase/client";
+import { useAuth } from "../context/AuthContext";
 
 const TIP_URL = "https://www.buymeacoffee.com/shaaraa";
 
 export default function HomeScreen() {
+  const { session } = useAuth();
+
   const handleTipPress = async () => {
     try {
       const supported = await Linking.canOpenURL(TIP_URL);
@@ -15,11 +19,20 @@ export default function HomeScreen() {
     }
   };
 
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      Alert.alert("Error signing out", error.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
         Dyad React Native (Expo)
       </Text>
+      
+      {session && <Text style={styles.emailText}>Welcome, {session.user.email}</Text>}
 
       <Link href="/image-generator" asChild>
         <Pressable style={styles.button}>
@@ -34,6 +47,15 @@ export default function HomeScreen() {
       >
         <Text style={styles.buttonText}>Tip me</Text>
       </Pressable>
+
+      {session && (
+        <Pressable
+          onPress={handleSignOut}
+          style={[styles.button, styles.signOutButton]}
+        >
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -51,6 +73,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     textAlign: 'center',
+    marginBottom: 10,
+  },
+  emailText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 20,
   },
   button: {
     paddingVertical: 12,
@@ -62,6 +90,9 @@ const styles = StyleSheet.create({
   },
   tipButton: {
     backgroundColor: "#111",
+  },
+  signOutButton: {
+    backgroundColor: "#dc3545",
   },
   buttonText: {
     color: "white",
